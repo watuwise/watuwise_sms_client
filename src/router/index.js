@@ -4,7 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: '/', redirect: '/dashboard' },
+    { path: '/', component: () => import('../pages/landing.vue') },
     {
       path: '/',
       component: () => import('../layouts/default.vue'),
@@ -76,7 +76,7 @@ const router = createRouter({
 router.beforeEach((to) => {
 
   //redirect to login page if not logged in or invalid route/url
-  const publicPages = ['/login', '/register', '/forgot-password'];
+  const publicPages = ['/', '/login', '/register', '/forgot-password'];
   const authRequired = !publicPages.includes(to.path);
   const auth = useAuthStore();
 

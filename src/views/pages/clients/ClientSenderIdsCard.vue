@@ -44,11 +44,8 @@ const moreList = [
               <VCol>
                 <VListItemSubtitle class="text-disabled mb-1">
                   Provider
-                </VListItemSubtitle>
-                <VListItemTitle v-if="id.sender_id == '23107'">
-                  PeakandDale
-                </VListItemTitle>
-                <VListItemTitle v-else>
+                </VListItemSubtitle>  
+                <VListItemTitle>
                   {{ id.provider ?? "N/A" }}
                 </VListItemTitle>
               </VCol>

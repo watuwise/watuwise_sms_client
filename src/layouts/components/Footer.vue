@@ -5,7 +5,7 @@
       &copy;
       {{ new Date().getFullYear() }}
       . Powered By
-      <a href="https://peakanddale.com" target="_blank" class="ms-1"
+      <a href="https://watuwise.com" target="_blank" class="ms-1"
         ><img src="/blackLogo.png" width="120" alt=""
       /></a>
     </span>
