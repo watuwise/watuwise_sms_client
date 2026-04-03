@@ -31,7 +31,7 @@ function handleForgotPassword() {
       <VCardItem class="justify-center">
         <template #prepend>
           <div class="d-flex">
-            <img src="../assets/images/logo.jpeg" width="50" alt="" />
+            <img src="/icon.png" width="50" alt="" />
           </div>
         </template>
 
