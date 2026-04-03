@@ -1,44 +1,52 @@
 <template>
   <div class="landing">
 
-    <!-- Navbar -->
-    <header class="landing-nav px-6 py-4 d-flex align-center justify-space-between">
-      <div class="d-flex align-center gap-x-3">
-        <img src="/WhiteAsset 2@2x.png" height="40" alt="Watuwise" />
-        <span class="text-h6 font-weight-bold text-white">Watuwise SMS</span>
-      </div>
-      <div class="d-flex gap-x-3">
-        <RouterLink to="/login">
-          <VBtn variant="outlined" color="white" size="small">Login</VBtn>
-        </RouterLink>
-        <RouterLink to="/register">
-          <VBtn color="white" size="small" style="color:#5025D1;">Get Started</VBtn>
-        </RouterLink>
-      </div>
-    </header>
+    <!-- Hero + Navbar as one section -->
+    <section class="hero-section">
 
-    <!-- Hero -->
-    <section class="hero d-flex align-center justify-center flex-column text-center px-4">
-      <img src="/icon.png" height="90" alt="Watuwise" class="mb-6 hero-logo" />
-      <h1 class="text-white font-weight-bold mb-4" style="font-size: clamp(2rem, 5vw, 3.5rem); line-height:1.2;">
-        Bulk SMS Made Simple<br />for Kenyan Businesses
-      </h1>
-      <p class="text-white mb-8" style="max-width:600px; opacity:0.88; font-size:1.1rem;">
-        Send thousands of messages in seconds. Manage contacts, track delivery,
-        and pay easily with M-Pesa. Watuwise SMS puts powerful messaging in your hands.
-      </p>
-      <div class="d-flex gap-x-4 flex-wrap justify-center">
-        <RouterLink to="/register">
-          <VBtn color="white" size="large" style="color:#5025D1; font-weight:700;">
-            Start for Free
-          </VBtn>
-        </RouterLink>
-        <RouterLink to="/login">
-          <VBtn variant="outlined" color="white" size="large">
-            Sign In
-          </VBtn>
-        </RouterLink>
+      <!-- Navbar — transparent over hero, sticky+white after scroll -->
+      <header class="landing-nav px-6 py-4 d-flex align-center justify-space-between" :class="{ scrolled: isScrolled }">
+        <div class="d-flex align-center gap-x-3">
+          <img :src="isScrolled ? '/blackLogo.png' : '/whiteLogo.png'" height="36" alt="Watuwise" />
+        </div>
+        <div class="d-flex gap-x-3">
+          <RouterLink to="/login">
+            <VBtn :variant="isScrolled ? 'outlined' : 'outlined'" :color="isScrolled ? 'primary' : 'white'" size="small">
+              Login
+            </VBtn>
+          </RouterLink>
+          <RouterLink to="/register">
+            <VBtn :color="isScrolled ? 'primary' : 'white'" size="small" :style="isScrolled ? '' : 'color:#5025D1;'">
+              Get Started
+            </VBtn>
+          </RouterLink>
+        </div>
+      </header>
+
+      <!-- Hero content -->
+      <div class="hero-content d-flex align-center justify-center flex-column text-center px-4">
+        <img src="/icon.png" height="90" alt="Watuwise" class="mb-6 hero-logo" />
+        <h1 class="text-white font-weight-bold mb-4" style="font-size: clamp(2rem, 5vw, 3.5rem); line-height:1.2;">
+          Bulk SMS Made Simple<br />for Kenyan Businesses
+        </h1>
+        <p class="text-white mb-8" style="max-width:600px; opacity:0.88; font-size:1.1rem;">
+          Send thousands of messages in seconds. Manage contacts, track delivery,
+          and pay easily with M-Pesa. Watuwise SMS puts powerful messaging in your hands.
+        </p>
+        <div class="d-flex gap-x-4 flex-wrap justify-center">
+          <RouterLink to="/register">
+            <VBtn color="white" size="large" style="color:#5025D1; font-weight:700;">
+              Start for Free
+            </VBtn>
+          </RouterLink>
+          <RouterLink to="/login">
+            <VBtn variant="outlined" color="white" size="large">
+              Sign In
+            </VBtn>
+          </RouterLink>
+        </div>
       </div>
+
     </section>
 
     <!-- Features -->
@@ -49,7 +57,6 @@
           A complete bulk SMS platform built for businesses that value speed, reliability, and simplicity.
         </p>
       </div>
-
       <VRow justify="center" class="features-grid">
         <VCol cols="12" sm="6" md="4" v-for="feature in features" :key="feature.title">
           <VCard class="feature-card pa-6 text-center h-100" rounded="lg" elevation="0">
@@ -104,6 +111,17 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+
+const isScrolled = ref(false)
+
+function onScroll() {
+  isScrolled.value = window.scrollY > 60
+}
+
+onMounted(() => window.addEventListener('scroll', onScroll))
+onUnmounted(() => window.removeEventListener('scroll', onScroll))
+
 const features = [
   {
     icon: 'bx-message-rounded-detail',
@@ -162,26 +180,39 @@ const steps = [
   background: #ffffff;
 }
 
+/* ── Hero section (navbar + hero as one unit) ── */
+.hero-section {
+  background: linear-gradient(135deg, #5025D1 0%, #7B52E0 100%);
+  display: flex;
+  flex-direction: column;
+}
+
 /* Navbar */
 .landing-nav {
-  background: #5025D1;
   position: sticky;
   top: 0;
   z-index: 100;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+  background: transparent;
 }
 
-/* Hero */
-.hero {
-  background: linear-gradient(135deg, #5025D1 0%, #7B52E0 100%);
-  min-height: 520px;
-  padding: 80px 16px;
+/* Scrolled state — white with shadow */
+.landing-nav.scrolled {
+  background: #ffffff;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Hero content */
+.hero-content {
+  flex: 1;
+  padding: 80px 16px 100px;
 }
 
 .hero-logo {
-  filter: drop-shadow(0 4px 24px rgba(0,0,0,0.18));
+  filter: drop-shadow(0 4px 24px rgba(0, 0, 0, 0.18));
 }
 
-/* Features */
+/* ── Features ── */
 .features {
   background: #F5F5F9;
 }
@@ -196,7 +227,7 @@ const steps = [
   box-shadow: 0 8px 32px rgba(80, 37, 209, 0.10) !important;
 }
 
-/* How it works */
+/* ── How it works ── */
 .how-it-works {
   background: #ffffff;
 }
@@ -215,12 +246,12 @@ const steps = [
   margin: 0 auto;
 }
 
-/* CTA */
+/* ── CTA ── */
 .cta-section {
   background: linear-gradient(135deg, #5025D1 0%, #7B52E0 100%);
 }
 
-/* Footer */
+/* ── Footer ── */
 .landing-footer {
   background: #F5F5F9;
   border-top: 1px solid #ebebeb;
