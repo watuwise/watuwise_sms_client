@@ -1,4 +1,6 @@
 <script setup>
+import { onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useBillingStore } from "@/stores/BillingStore";
 import BillingDataTable from "@/views/pages/billing/BillingDataTable.vue";
 import BillingManagementTitle from "@/views/pages/billing/BillingManagementTitle.vue";
@@ -9,14 +11,22 @@ import BillingTotalRevenue from "@/views/pages/billing/BillingTotalRevenue.vue";
 // 👉 Images
 import wallet from "@images/cards/wallet-purple.png";
 
-// Instantiate billing store
 const billingStore = useBillingStore();
+const route = useRoute();
+const router = useRouter();
 
-// call getPayments action
 billingStore.getPayments();
-
-// call getRevenueStats action
 billingStore.getRevenueStats(`${new Date().getFullYear()}`);
+
+// Auto-verify Paystack payment on return from checkout
+onMounted(() => {
+  const paystackRef = route.query.paystack_ref;
+  if (paystackRef) {
+    billingStore.verifyPaystackPayment(paystackRef);
+    // Clean the query param from the URL
+    router.replace({ path: '/billing' });
+  }
+});
 </script>
 
 <template>

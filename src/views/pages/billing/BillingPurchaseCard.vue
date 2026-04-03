@@ -16,83 +16,61 @@ const user = JSON.parse(localStorage.getItem("user"));
 const purchaseFormData = ref({
   price: null,
   units: null,
-  phoneNumber: "",
 });
 
 const units_invalid = ref(false);
 
 function calculatePrice() {
   const plans = smsPlanStore.plans;
-  // const plans = JSON.parse(localStorage.getItem("sms_plans"));
-  console.log(plans[0]);
 
   let min_units = 0;
 
   for (const plan of plans) {
-    console.log("is plan");
-    console.log(plan);
-    console.log(plan.title);
-
     min_units = +plan.min_units;
 
-    if (+plan.min_units < min_units) {
-      min_units = +plan.min_units;
-    }
+    if (+plan.min_units < min_units) min_units = +plan.min_units;
 
-    if (purchaseFormData.value.units < min_units) {
-      units_invalid.value = true;
-    } else {
-      units_invalid.value = false;
-    }
+    units_invalid.value = purchaseFormData.value.units < min_units;
 
     if (plan.max_units == "-1") {
-      purchaseFormData.value.price = Math.round(
-        +plan.price * +purchaseFormData.value.units
-      );
+      purchaseFormData.value.price = Math.round(+plan.price * +purchaseFormData.value.units);
       break;
     } else {
       if (
         +purchaseFormData.value.units >= +plan.min_units &&
         +purchaseFormData.value.units <= +plan.max_units
       ) {
-        purchaseFormData.value.price = Math.round(
-          +plan.price * +purchaseFormData.value.units
-        );
+        purchaseFormData.value.price = Math.round(+plan.price * +purchaseFormData.value.units);
         break;
       }
     }
   }
-
-  console.log("min_units: " + min_units);
-
-  return null;
 }
 
-function makePayment() {
-  // this.v$.$validate();
+function payWithPaystack() {
+  if (!purchaseFormData.value.units || !purchaseFormData.value.price) return;
 
-  // if (!this.v$.$error) {
+  dialog.value = false;
+  billingStore.payWithPaystack(purchaseFormData.value.units, purchaseFormData.value.price);
+}
+
+function payWithMpesa() {
+  if (!purchaseFormData.value.units || !purchaseFormData.value.price) return;
+
   Swal.fire({
-    title: "Pay with MPesa?",
-    text: "A prompt will be sent to +" + +user.phone_number,
+    title: "Pay with M-Pesa?",
+    text: "A prompt will be sent to +" + user.phone_number,
     icon: "question",
     showCloseButton: true,
     showDenyButton: true,
     confirmButtonColor: "#3085d6",
-    denyButtonText: `Change phone number`,
+    denyButtonText: "Change phone number",
     confirmButtonText: "Yes",
     iconColor: "#89CFF0",
   }).then((result) => {
-    console.log(result);
-
     if (result.isConfirmed) {
-      console.log('Price of units')
-      console.log(purchaseFormData.value.price);
-      billingStore.sendPrompt(
-        purchaseFormData.value.price,
-        user.phone_number,
-        purchaseFormData.value.units
-      );
+      dialog.value = false;
+      billingStore.sendPrompt(purchaseFormData.value.price, user.phone_number, purchaseFormData.value.units);
     } else if (result.isDenied) {
       Swal.fire({
         title: "Enter your phone number",
@@ -100,19 +78,14 @@ function makePayment() {
         input: "number",
         showCancelButton: true,
         confirmButtonText: "Send prompt",
-        showLoaderOnConfirm: true,
       }).then((result) => {
         if (result.isConfirmed) {
-          billingStore.sendPrompt(
-            purchaseFormData.value.price,
-            result.value,
-            purchaseFormData.value.units
-          );
+          dialog.value = false;
+          billingStore.sendPrompt(purchaseFormData.value.price, result.value, purchaseFormData.value.units);
         }
       });
     }
   });
-  // }
 }
 </script>
 
@@ -121,72 +94,108 @@ function makePayment() {
     <VCardText class="d-flex flex-column align-center text-center">
       <h3 class="pb-3">Purchase SMS</h3>
       <p>
-        Purchase SMS units according to your budget with our affordable plans. Click the
-        button to top up your sms units.
+        Purchase SMS units according to your budget with our affordable plans.
+        Click the button to top up your SMS units.
       </p>
 
       <!-- DIALOG -->
       <VDialog v-model="dialog" persistent width="860">
         <template v-slot:activator="{ props }">
-          <VBtn v-bind="props">Top Up</VBtn>
+          <VBtn v-bind="props" color="primary">Top Up</VBtn>
         </template>
 
         <VCard>
-          <VForm @submit.prevent="makePayment">
-            <VCardTitle class="mt-4">
-              <span class="text-h5">SMS Purchase</span>
-            </VCardTitle>
-            <VCardText>
-              <VContainer>
-                <VRow>
-                  <VCol cols="6">
-                    <VTextField
-                      type="number"
-                      label="Number of SMS to buy "
-                      v-model.trim="purchaseFormData.units"
-                      @keyup="calculatePrice"
-                      required
-                    />
-                    <span class="text-error" v-if="units_invalid">
-                      <small>
-                        You have entered invalid sms units. Please confirm with the sms
-                        plans
-                      </small>
-                    </span>
-                  </VCol>
-                  <VCol cols="6">
-                    <VTextField
-                      type="number"
-                      label="Total amount to pay"
-                      v-model="purchaseFormData.price"
-                      readonly
-                    />
-                  </VCol>
-                </VRow>
-              </VContainer>
-            </VCardText>
+          <VCardTitle class="mt-4">
+            <span class="text-h5">SMS Purchase</span>
+          </VCardTitle>
 
-            <VDivider />
-
-            <VCardText>
+          <VCardText>
+            <VContainer>
               <VRow>
-                <VCol cols="4" v-for="(plan, index) in smsPlanStore.plans" :key="index">
-                  <BillingPlanCard :sms-plan="plan" />
+                <VCol cols="6">
+                  <VTextField
+                    type="number"
+                    label="Number of SMS units"
+                    v-model.trim="purchaseFormData.units"
+                    @keyup="calculatePrice"
+                    required
+                  />
+                  <span class="text-error" v-if="units_invalid">
+                    <small>Invalid units. Please check the SMS plans below.</small>
+                  </span>
+                </VCol>
+                <VCol cols="6">
+                  <VTextField
+                    type="number"
+                    label="Total amount (KES)"
+                    v-model="purchaseFormData.price"
+                    readonly
+                  />
                 </VCol>
               </VRow>
-            </VCardText>
+            </VContainer>
+          </VCardText>
 
-            <VCardActions>
-              <VSpacer />
-              <VBtn color="blue-darken-1" variant="text" @click="dialog = false">
-                Close
-              </VBtn>
-              <VBtn type="submit" variant="text" @click="dialog = false">
-                Make Payment
-                <VIcon icon="bx-purchase-tag" class="ml-1" />
-              </VBtn>
-            </VCardActions>
-          </VForm>
+          <VDivider />
+
+          <!-- SMS Plans -->
+          <VCardText>
+            <VRow>
+              <VCol cols="4" v-for="(plan, index) in smsPlanStore.plans" :key="index">
+                <BillingPlanCard :sms-plan="plan" />
+              </VCol>
+            </VRow>
+          </VCardText>
+
+          <VDivider />
+
+          <!-- Payment Buttons -->
+          <VCardText>
+            <p class="text-body-2 text-medium-emphasis mb-4">Select payment method:</p>
+            <VRow>
+              <!-- Paystack — Primary -->
+              <VCol cols="12" sm="6">
+                <VBtn
+                  block
+                  color="primary"
+                  size="large"
+                  :disabled="!purchaseFormData.price || units_invalid"
+                  @click="payWithPaystack"
+                >
+                  <VIcon icon="bx-credit-card" class="mr-2" />
+                  Pay with Paystack
+                  <small class="ml-2 opacity-70">(Card / Bank)</small>
+                </VBtn>
+              </VCol>
+
+              <!-- M-Pesa — Secondary -->
+              <VCol cols="12" sm="6">
+                <VBtn
+                  block
+                  variant="outlined"
+                  color="success"
+                  size="large"
+                  :disabled="!purchaseFormData.price || units_invalid"
+                  @click="payWithMpesa"
+                >
+                  <img
+                    src="@images/cards/MPESA.png"
+                    height="18"
+                    class="mr-2"
+                    alt="M-Pesa"
+                  />
+                  Pay with M-Pesa
+                </VBtn>
+              </VCol>
+            </VRow>
+          </VCardText>
+
+          <VCardActions>
+            <VSpacer />
+            <VBtn color="blue-darken-1" variant="text" @click="dialog = false">
+              Close
+            </VBtn>
+          </VCardActions>
         </VCard>
       </VDialog>
       <!-- DIALOG -->
