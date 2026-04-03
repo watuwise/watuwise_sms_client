@@ -238,6 +238,65 @@ export const useBillingStore = defineStore('billingStore', {
             }
         },  
 
+        async payWithPaystack(units, amount) {
+            try {
+                Loading.standard('Initializing payment...', {
+                    svgColor: '#5025D1',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                });
+
+                const user = JSON.parse(localStorage.getItem('user'));
+                const ref_no = 'WW-' + Math.floor(100000000 + Math.random() * 900000000);
+
+                const response = await axios.post('/payments/paystack/initialize', {
+                    email:   user.email,
+                    amount:  amount,
+                    units:   units,
+                    user_id: user.id,
+                    ref_no:  ref_no,
+                });
+
+                Loading.remove();
+
+                if (response.data.status === 200) {
+                    // Redirect user to Paystack checkout
+                    window.location.href = response.data.payment_url;
+                } else {
+                    this.toast.error(response.data.error_message || 'Could not initialize payment');
+                }
+
+            } catch (error) {
+                Loading.remove();
+                this.toast.error('Payment initialization failed. Please try again.');
+                console.log(error);
+            }
+        },
+
+        async verifyPaystackPayment(reference) {
+            try {
+                Loading.standard('Verifying payment...', {
+                    svgColor: '#5025D1',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                });
+
+                const response = await axios.get(`/payments/paystack/verify/${reference}`);
+
+                Loading.remove();
+
+                if (response.data.status === 200) {
+                    this.toast.success('Payment successful! Your SMS units have been credited.');
+                    this.getPayments();
+                } else {
+                    this.toast.error('Payment verification failed. Contact support if units were deducted.');
+                }
+
+            } catch (error) {
+                Loading.remove();
+                this.toast.error('Could not verify payment. Please contact support.');
+                console.log(error);
+            }
+        },
+
         sendPrompt(amount, pNumber, units){
             try {
 
