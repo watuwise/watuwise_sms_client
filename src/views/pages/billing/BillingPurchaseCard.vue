@@ -116,8 +116,8 @@ function payWithMpesa() {
                   <VTextField
                     type="number"
                     label="Number of SMS units"
-                    v-model.trim="purchaseFormData.units"
-                    @keyup="calculatePrice"
+                    v-model="purchaseFormData.units"
+                    @input="calculatePrice"
                     required
                   />
                   <span class="text-error" v-if="units_invalid">
@@ -151,10 +151,8 @@ function payWithMpesa() {
 
           <!-- Payment Buttons -->
           <VCardText>
-            <p class="text-body-2 text-medium-emphasis mb-4">Select payment method:</p>
             <VRow>
-              <!-- Paystack — Primary -->
-              <VCol cols="12" sm="6">
+              <VCol cols="12">
                 <VBtn
                   block
                   color="primary"
@@ -164,27 +162,7 @@ function payWithMpesa() {
                 >
                   <VIcon icon="bx-credit-card" class="mr-2" />
                   Pay with Paystack
-                  <small class="ml-2 opacity-70">(Card / Bank)</small>
-                </VBtn>
-              </VCol>
-
-              <!-- M-Pesa — Secondary -->
-              <VCol cols="12" sm="6">
-                <VBtn
-                  block
-                  variant="outlined"
-                  color="success"
-                  size="large"
-                  :disabled="!purchaseFormData.price || units_invalid"
-                  @click="payWithMpesa"
-                >
-                  <img
-                    src="@images/cards/MPESA.png"
-                    height="18"
-                    class="mr-2"
-                    alt="M-Pesa"
-                  />
-                  Pay with M-Pesa
+                  <small class="ml-2 opacity-70">(Card / M-Pesa / Bank)</small>
                 </VBtn>
               </VCol>
             </VRow>
