@@ -6,25 +6,6 @@ import ClientMoreBtn from "./ClientMoreBtn.vue";
 // define props
 const props = defineProps(["payments"]);
 
-const transactions = [
-  {
-    paymentMethod: "M-Pesa",
-    amount: 838.71,
-    description: "SMS Units",
-    detail: "Units: 900",
-    icon: mpesa,
-    color: "success",
-  },
-  {
-    paymentMethod: "Credit Card",
-    amount: 838.71,
-    description: "Sender ID",
-    detail: "ID: PnD",
-    icon: creditCardSuccess,
-    color: "success",
-  },
-];
-
 const moreList = [
   {
     title: "Refresh",
