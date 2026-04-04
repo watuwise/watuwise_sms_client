@@ -35,7 +35,7 @@ function handleForgotPassword() {
           </div>
         </template>
 
-        <VCardTitle class="text-2xl font-weight-bold"> Bulk SMS Portal </VCardTitle>
+        <VCardTitle class="text-2xl font-weight-bold"> WatuwiseSMS </VCardTitle>
       </VCardItem>
 
       <VCardText class="pt-2">

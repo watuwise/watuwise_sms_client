@@ -4,7 +4,7 @@
     <!-- ── Sticky Navbar ── -->
     <header class="landing-nav" :class="{ scrolled: isScrolled }">
       <div class="nav-inner">
-        <img :src="isScrolled ? '/blackLogo.png' : '/whiteLogo.png'" height="32" alt="Watuwise SMS" />
+        <img :src="isScrolled ? '/blackLogo.png' : '/whiteLogo.png'" height="32" alt="WatuwiseSMS" />
 
         <!-- Desktop links -->
         <nav class="nav-links">
@@ -36,7 +36,7 @@
     <Transition name="drawer">
       <div v-if="mobileMenuOpen" class="mobile-drawer">
         <div class="mobile-drawer-header">
-          <img src="/blackLogo.png" height="30" alt="Watuwise SMS" />
+          <img src="/blackLogo.png" height="30" alt="WatuwiseSMS" />
           <button class="drawer-close" @click="mobileMenuOpen = false" aria-label="Close menu">✕</button>
         </div>
         <nav class="mobile-nav">
@@ -45,12 +45,8 @@
           <a href="#pricing"      @click="mobileMenuOpen = false">Pricing</a>
         </nav>
         <div class="mobile-nav-actions">
-          <RouterLink to="/login" @click="mobileMenuOpen = false">
-            <VBtn variant="outlined" color="primary" block class="mb-3">Login</VBtn>
-          </RouterLink>
-          <RouterLink to="/register" @click="mobileMenuOpen = false">
-            <VBtn color="primary" block>Get Started</VBtn>
-          </RouterLink>
+          <VBtn variant="outlined" color="primary" block class="mb-3" to="/login" @click="mobileMenuOpen = false">Login</VBtn>
+          <VBtn color="primary" block to="/register" @click="mobileMenuOpen = false">Get Started</VBtn>
         </div>
       </div>
     </Transition>
@@ -72,7 +68,7 @@
           Trusted by 500+ Kenyan businesses
         </div>
 
-        <img src="/icon.png" class="hero-logo mb-5" alt="Watuwise SMS" />
+        <img src="/icon.png" class="hero-logo mb-5" alt="WatuwiseSMS" />
 
         <h1 class="hero-title mb-4">
           Reach Your Customers<br />
@@ -80,7 +76,7 @@
         </h1>
 
         <p class="hero-subtitle mb-8">
-          Watuwise SMS gives Kenyan businesses the power to send thousands of personalised
+          WatuwiseSMS gives Kenyan businesses the power to send thousands of personalised
           messages in seconds — with real-time delivery tracking and easy M-Pesa top-up.
         </p>
 
@@ -295,7 +291,7 @@
 
         <h2 class="cta-title mb-4">
           Start sending smarter<br />
-          <span class="cta-title-accent">with Watuwise SMS</span>
+          <span class="cta-title-accent">with WatuwiseSMS</span>
         </h2>
 
         <p class="cta-subtitle mb-8">
@@ -334,7 +330,7 @@
     <footer class="landing-footer">
       <div class="footer-top">
         <div class="footer-brand">
-          <img src="/blackLogo.png" height="26" alt="Watuwise SMS" class="mb-2" />
+          <img src="/blackLogo.png" height="26" alt="WatuwiseSMS" class="mb-2" />
           <p class="footer-tagline">SMS made simple for Kenyan businesses.</p>
         </div>
         <div class="footer-links">
@@ -344,7 +340,7 @@
         </div>
       </div>
       <VDivider class="my-5" />
-      <p class="footer-copy">&copy; {{ new Date().getFullYear() }} Watuwise SMS. All rights reserved.</p>
+      <p class="footer-copy">&copy; {{ new Date().getFullYear() }} WatuwiseSMS. All rights reserved.</p>
     </footer>
 
   </div>

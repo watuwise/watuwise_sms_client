@@ -51,12 +51,12 @@ function submitForm() {
           </div>
         </template>
 
-        <VCardTitle class="text-2xl font-weight-bold"> Bulk SMS </VCardTitle>
+        <VCardTitle class="text-2xl font-weight-bold"> WatuwiseSMS </VCardTitle>
       </VCardItem>
 
       <VCardText class="pt-2">
-        <h5 class="text-h5 mb-1">Seamless Bulk SMS starts here 🚀</h5>
-        <p class="mb-0">Make your bulk sms management easy and fun!</p>
+        <h5 class="text-h5 mb-1">Seamless messaging starts here 🚀</h5>
+        <p class="mb-0">Make your SMS management easy and fun!</p>
       </VCardText>
 
       <VCardText>

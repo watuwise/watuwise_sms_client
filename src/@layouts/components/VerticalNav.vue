@@ -57,7 +57,7 @@ const handleNavScroll = (evt) => {
           <div class="d-flex">
             <img src="/icon.png" width="40" alt="" />
           </div>
-          <h2 class="leading-normal">Bulk SMS</h2>
+          <h2 class="leading-normal">WatuwiseSMS</h2>
         </RouterLink>
       </slot>
     </div>
