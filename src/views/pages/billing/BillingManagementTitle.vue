@@ -19,7 +19,7 @@ const illustrationJohn = computed(() =>
 
         <VCardText>
           <span>
-            Top up your bulk sms from here.
+            Top up your SMS units from here.
             <br />
             Check sms plans and monitor sms purchase rate/stats.
           </span>
