@@ -13,7 +13,7 @@ const props = defineProps({
     required: true,
   },
   stats: {
-    type: String,
+    type: [String, Number],
     required: true,
   },
   isDefault: {
@@ -22,10 +22,6 @@ const props = defineProps({
   },
 });
 
-const isPositive = controlledComputed(
-  () => props.change,
-  () => Math.sign(props.change) === 1
-);
 </script>
 
 <template>

@@ -7,6 +7,8 @@ import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import axios from './config/axios';
 
+const SENDER_ID_FEE = 8000; // KES
+
 export const useSenderIdStore = defineStore('senderIdStore', {
     state: () => ({ 
         sender_ids: [],
@@ -30,7 +32,12 @@ export const useSenderIdStore = defineStore('senderIdStore', {
                     
                         this.defaultSenderID = res.data.defaultSenderID
                         this.sender_ids = res.data.senderIDs
-                        this.sender_id_names = res.data.senderIdNames;
+
+                        // Only include sender IDs that belong to this user (exclude admin default)
+                        const clientID = JSON.parse(localStorage.getItem('user')).id;
+                        this.sender_id_names = res.data.senderIDs
+                            .filter(s => s.clientID == clientID && s.status === 'active')
+                            .map(s => s.sender_id);
 
                         console.log("sender id names");
                         console.log(this.sender_id_names);
@@ -71,6 +78,88 @@ export const useSenderIdStore = defineStore('senderIdStore', {
             } catch(e) {
 
                 console.log(e);
+            }
+        },
+
+        async applySenderId(formData) {
+            this.formProcessing = true;
+            try {
+                const data = new FormData();
+                data.append('sender_id',        formData.sender_id);
+                data.append('clientID',          formData.clientID);
+                data.append('reg_certificate',   formData.reg_certificate);
+                data.append('application_form',  formData.application_form);
+
+                const res = await axios.post('/sender-ids/apply', data, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+
+                return res.data.sender_id_record_id;
+            } catch(error) {
+                const msg = error.response?.data?.error_message || 'Failed to submit application';
+                this.toast.error(msg);
+                throw error;
+            } finally {
+                this.formProcessing = false;
+            }
+        },
+
+        async initializeSenderIdPayment(senderIdRecordId) {
+            try {
+                Loading.standard('Redirecting to payment...', {
+                    svgColor: '#5025D1',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                });
+
+                const user = JSON.parse(localStorage.getItem('user'));
+                const ref_no = 'WW-SID-' + Math.floor(100000000 + Math.random() * 900000000);
+
+                const response = await axios.post('/payments/paystack/initialize', {
+                    email:                user.email,
+                    amount:               SENDER_ID_FEE,
+                    units:                0,
+                    user_id:              user.id,
+                    ref_no:               ref_no,
+                    payment_type:         'sender_id',
+                    sender_id_record_id:  senderIdRecordId,
+                });
+
+                Loading.remove();
+
+                if (response.data.status === 200) {
+                    window.location.href = response.data.payment_url;
+                } else {
+                    this.toast.error(response.data.error_message || 'Could not initialize payment');
+                }
+            } catch(error) {
+                Loading.remove();
+                this.toast.error('Payment initialization failed. Please try again.');
+                console.log(error);
+            }
+        },
+
+        async verifySenderIdPayment(reference) {
+            try {
+                Loading.standard('Verifying payment...', {
+                    svgColor: '#5025D1',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                });
+
+                const response = await axios.get(`/payments/paystack/verify/${reference}`);
+
+                Loading.remove();
+
+                if (response.data.status === 200) {
+                    this.toast.success(response.data.message);
+                    router.replace({ path: '/sender-id' });
+                    this.getSenderIds();
+                } else {
+                    this.toast.error('Payment verification failed. Contact support if you were charged.');
+                }
+            } catch(error) {
+                Loading.remove();
+                this.toast.error('Could not verify payment. Please contact support.');
+                console.log(error);
             }
         },
 
