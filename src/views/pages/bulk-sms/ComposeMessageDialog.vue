@@ -1,7 +1,7 @@
 <script setup>
 import CustomLoader from "@/@core/components/CustomLoader.vue";
 import { useVuelidate } from "@vuelidate/core";
-import { email, maxLength, required } from "@vuelidate/validators";
+import { maxLength, required } from "@vuelidate/validators";
 import { useContactStore } from "@/stores/ContactStore";
 import { useSenderIdStore } from "@/stores/SenderIdStore";
 import { useSmsStore } from "@/stores/SmsStore";
@@ -28,20 +28,35 @@ const formData = ref({
 
   
 // Custom validator: passes if either contacts or groups has items
-const atLeastOne = (siblingField) =>
-  helpers.withMessage(
-    "Please select at least one contact or group",
-    (value, siblings) =>
-      (Array.isArray(value) && value.length > 0) ||
-      (Array.isArray(siblings[siblingField]) && siblings[siblingField].length > 0)
-);
+// const atLeastOne = (siblingField) =>
+//   helpers.withMessage(
+//     "Please select at least one contact or group",
+//     (value, siblings) =>
+//       (Array.isArray(value) && value.length > 0) ||
+//       (Array.isArray(siblings[siblingField]) && siblings[siblingField].length > 0)
+// );
 
-const rules = {
-  contacts: { atLeastOne: atLeastOne("groups") },
-  groups:   { atLeastOne: atLeastOne("contacts") },
+// const rules = {
+//   contacts: { atLeastOne: atLeastOne("groups") },
+//   groups:   { atLeastOne: atLeastOne("contacts") },
+//   senderID: { required },
+//   message:  { required, maxLength: maxLength(160) },
+// };
+
+  
+// 👇 computed rules so cross-field validation is reactive
+const rules = computed(() => ({
+  contacts: {
+    atLeastOne: (value) =>
+      value.length > 0 || formData.value.groups.length > 0,
+  },
+  groups: {
+    atLeastOne: (value) =>
+      value.length > 0 || formData.value.contacts.length > 0,
+  },
   senderID: { required },
-  message:  { required, maxLength: maxLength(160) },
-};
+  message: { required, maxLength: maxLength(160) },
+}));
   
 const v$ = useVuelidate(rules, formData);
 
