@@ -26,12 +26,23 @@ const formData = ref({
   scheduled_time: ref(new Date()),
 });
 
+  
+// Custom validator: passes if either contacts or groups has items
+const atLeastOne = (siblingField) =>
+  helpers.withMessage(
+    "Please select at least one contact or group",
+    (value, siblings) =>
+      (Array.isArray(value) && value.length > 0) ||
+      (Array.isArray(siblings[siblingField]) && siblings[siblingField].length > 0)
+);
+
 const rules = {
-  contacts: { required },
-  groups: { required },
+  contacts: { atLeastOne: atLeastOne("groups") },
+  groups:   { atLeastOne: atLeastOne("contacts") },
   senderID: { required },
-  message: { required, maxLength: maxLength(160) },
+  message:  { required, maxLength: maxLength(160) },
 };
+  
 const v$ = useVuelidate(rules, formData);
 
 
@@ -85,11 +96,20 @@ function appendGroup(group) {
 }
 
 
+// function submitForm(send_type) {
+//   v$.value.$touch.call();
+
+//   if (v$.value.$error || v$.value.$invalid) return;
+
+
+//   if (send_type == "Send Now") smsStore.sendMessage(formData.value);
+//   else smsStore.sendScheduledMessage(formData.value);
+// }
+
 function submitForm(send_type) {
-  v$.value.$touch.call();
+  v$.value.$touch();
 
   if (v$.value.$error || v$.value.$invalid) return;
-
 
   if (send_type == "Send Now") smsStore.sendMessage(formData.value);
   else smsStore.sendScheduledMessage(formData.value);
