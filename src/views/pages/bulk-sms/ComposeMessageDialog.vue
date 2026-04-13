@@ -109,6 +109,27 @@ function submitForm(send_type) {
         </VCardTitle>
 
         <VCardText>
+          <!-- No sender ID warning -->
+          <VAlert
+            v-if="senderIdStore.sender_id_names.length === 0"
+            type="warning"
+            variant="tonal"
+            border="start"
+            class="mb-4"
+          >
+            <div class="d-flex align-center justify-space-between flex-wrap gap-2">
+              <span>
+                You don't have an approved Sender ID yet. Messages cannot be sent without one.
+              </span>
+              <RouterLink to="/sender-id">
+                <VBtn color="warning" size="small" variant="elevated">
+                  <VIcon icon="bx-id-card" class="mr-1" size="16" />
+                  Apply for Sender ID
+                </VBtn>
+              </RouterLink>
+            </div>
+          </VAlert>
+
           <VContainer>
             <VRow>
               <VCol cols="4">
@@ -116,6 +137,8 @@ function submitForm(send_type) {
                   label="Select Sender ID"
                   v-model.trim="formData.senderID"
                   :items="senderIdStore.sender_id_names"
+                  :disabled="senderIdStore.sender_id_names.length === 0"
+                  :placeholder="senderIdStore.sender_id_names.length === 0 ? 'No Sender ID available' : ''"
                   @input="v$.senderID.$touch"
                   :error-messages="v$.senderID.$errors.map((e) => e.$message)"
                 />
@@ -298,7 +321,7 @@ function submitForm(send_type) {
           </div>
 
           <CustomLoader v-if="smsStore.formProcessing" style="height: 50; width: 50" />
-          <VBtn type="submit" variant="text" v-else>
+          <VBtn type="submit" variant="text" v-else :disabled="senderIdStore.sender_id_names.length === 0">
             Send
             <VIcon icon="bx-send" class="ml-1" />
 
